@@ -12,3 +12,7 @@ The project is targeted a cicken coop, and the purpose is to set up a device to:
 -let an online user disable the automatic doorcontrole
 -let an online user overwrite the automatic doorcontrole to manualy
 -let an online user know if the door is open or closed
+
+extras:
+-powered by solar
+-update on facebook for every action
