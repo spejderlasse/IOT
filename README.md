@@ -5,7 +5,7 @@ This repository will contain sourcecode for the IOT project of Lasse Greve Rasmu
 
 The project will be developed for a particle Argon
 
-Purpose off the project is to set up a device to:
+The project is targeted a cicken coop, and the purpose is to set up a device to:
 -collect daily sunrise/sunset from a webhook
 -by a servo to close the door one hour after sunset
 -by a servo to open the door at sunrise
