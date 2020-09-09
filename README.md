@@ -16,3 +16,4 @@ The project is targeted a cicken coop, and the purpose is to set up a device to:
 extras:
 -powered by solar
 -update on facebook for every action
+-ligth for evenings/monings in vintertime
