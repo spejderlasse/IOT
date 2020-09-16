@@ -18,6 +18,8 @@ The project is targeted a cicken coop, and the purpose is to set up a device to:
 
 -allow a user to manually open or close the door
 
+-log the tempeature online (to add an analog signal for the project)
+
 
 2. priority
 
