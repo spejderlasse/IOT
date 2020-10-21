@@ -18,22 +18,23 @@ The project is targeted a cicken coop, and the purpose is to set up a device to:
 
 -allow a user to manually open or close the door
 
--log the tempeature online (to add an analog signal for the project)
-
 
 2. priority
 
--let an online user disable the automatic doorcontrole
-
--let an online user overwrite the automatic doorcontrole to manualy
-
--let an online user know if the door is open or closed
-
-
-3. priority
-
 -powered by solar
 
--update on twitter for every action
-
 -ligth for evenings/monings in vintertime
+
+
+Defined as requirements:
+The system must collect data of sunrise and sunset from an API on dayli basis
+The system must controle a servo to open and close the gate
+When the time of sunset is reached, the gate must close
+When the time of sunrise is reached, the gate must open
+While nothing to proceed the system should go to sleep
+If sunrise and sunset isn’t updated, the system will be controlled by lightlevels meassured by a photoresistor
+The system could be driven by a battery charged froma solacell
+While the nights are long in wintertime, there could be turned on ligth in the Henhouse for some houers after sunset
+
+
+
