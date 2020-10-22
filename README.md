@@ -27,14 +27,22 @@ The project is targeted a cicken coop, and the purpose is to set up a device to:
 
 
 Defined as requirements:
-The system must collect data of sunrise and sunset from an API on dayli basis
-The system must controle a servo to open and close the gate
-When the time of sunset is reached, the gate must close
-When the time of sunrise is reached, the gate must open
-While nothing to proceed the system should go to sleep
-If sunrise and sunset isn’t updated, the system will be controlled by lightlevels meassured by a photoresistor
-The system could be driven by a battery charged froma solacell
-While the nights are long in wintertime, there could be turned on ligth in the Henhouse for some houers after sunset
+
+-The system must collect data of sunrise and sunset from an API on dayli basis
+
+-The system must controle a servo to open and close the gate
+
+-When the time of sunset is reached, the gate must close
+
+-When the time of sunrise is reached, the gate must open
+
+-While nothing to proceed the system should go to sleep
+
+-If sunrise and sunset isn’t updated, the system will be controlled by lightlevels meassured by a photoresistor
+
+-The system could be driven by a battery charged froma solacell
+
+-While the nights are long in wintertime, there could be turned on ligth in the Henhouse for some houers after sunset
 
 
 
