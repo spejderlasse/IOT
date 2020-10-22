@@ -1,25 +1,18 @@
 # IOT
-Repository for the course E5IOT at Aarhus University, 2020
-
-This repository will contain sourcecode for the IOT project of Lasse Greve Rasmussen
-
-The project will be developed for a particle Argon
-
-The project is targeted a hen house, and the purpose is to set up a device to controle the gate
+Repository for the course E5IOT at Aarhus University, 2020  
+This repository will contain sourcecode for the IOT project of Lasse Greve Rasmussen  
+The project will be developed for a particle Argon  
+The project is targeted a hen house, and the purpose is to set up a device to controle the gate  
 
 ## Tasks
-1. piority:
+### 1. piority:
 - collect daily sunrise/sunset from a webhook
 - by a servo to close the door one hour after sunset
 - by a servo to open the door at sunrise
 - allow a user to manually open or close the door
-
-
-2. priority
+### 2. priority
 - powered by solar
 - ligth for evenings/monings in vintertime
-
-
 ## Requirements
 - The system must collect data of sunrise and sunset from an API on dayli basis
 - The system must controle a servo to open and close the gate
