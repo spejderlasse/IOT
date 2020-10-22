@@ -27,7 +27,7 @@ The project is targeted a cicken coop, and the purpose is to set up a device to:
 
 ------------------------------------------------------------------------------------------------
 
-Defined as requirements:
+**Requirements:**
 
 - The system must collect data of sunrise and sunset from an API on dayli basis
 - The system must controle a servo to open and close the gate
