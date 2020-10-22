@@ -25,6 +25,7 @@ The project is targeted a cicken coop, and the purpose is to set up a device to:
 
 -ligth for evenings/monings in vintertime
 
+------------------------------------------------------------------------------------------------
 
 Defined as requirements:
 
