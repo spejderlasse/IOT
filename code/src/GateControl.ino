@@ -1,8 +1,8 @@
 /*
- * Project W42_PWM_test
- * Description:
- * Author:
- * Date:
+ * Project GateControl
+ * Description: Controling the gate for a chicken coop.
+ * Author: Lasse Greve Rasmussen
+ * Date:  26-11-2020
  */
 
 int photosensor = A0;
@@ -19,10 +19,8 @@ int ligthlevel;
 int lightlevel_cur;
 int pwm_pos;
 const int PWM_FREKQUENZY = 50;
-const int LIGTH_LOW = 50;// 13/11 34;
-const int LIGTH_HIGH = 110;// 13/11 60;
-//int pos_count;
-//int counter;
+const int LIGTH_LOW = 50;
+const int LIGTH_HIGH = 110;
 int sunset;
 int sunrise;
 int curr_time;
@@ -34,7 +32,6 @@ void OpenGate();
 void CloseGate();
 void GoToAuto();
 void myHandler(const char *event, const char *data);
-void DebugInterrupts();
 
 typedef enum{
 manual,
@@ -45,8 +42,6 @@ mode_types mode;
 
 // setup() runs once, when the device is first turned on.
 void setup() {
-  //pinMode(signal,OUTPUT);
-  //digitalWrite(signal,LOW);
 
   // set gate to mid position and open
   pinMode(gate_PWM, OUTPUT);
@@ -57,7 +52,6 @@ void setup() {
   //variables to access online
   Particle.variable("ligthlevel", &ligthlevel, INT);
   Particle.variable("gate position", &pwm_pos, INT);
-  //Particle.variable("counter", &counter, INT);
   Particle.variable("current light", &lightlevel_cur, INT);
   Particle.variable("sunset", &sunset, INT);
   Particle.variable("sunrise", &sunset, INT);
@@ -68,15 +62,14 @@ void setup() {
 
   Particle.subscribe("hook-response/suntimes", myHandler, MY_DEVICES);
 
-  //pos_count = 0;
-  //counter = 2;
+  // setting ligthlevel between high and low
   ligthlevel = (LIGTH_HIGH + LIGTH_LOW) * 0.5;
 
   //take controle of rgb and turn off
   RGB.control(true);
   RGB.color(0, 0, 0);
 
-  //attaching interrupts for manually opening or closing the gate default priority is 13
+  //attaching interrupts for manually opening or closing the gate
   pinMode(push_close, INPUT_PULLDOWN);
   pinMode(push_open, INPUT_PULLDOWN);
   pinMode(push_auto, INPUT_PULLDOWN);
@@ -84,13 +77,9 @@ void setup() {
   attachInterrupt(push_open, OpenGateI, RISING, 8);
   attachInterrupt(push_close, CloseGateI, RISING, 8);
   attachInterrupt(push_auto, GoToAuto, RISING, 8);
-
   mode = automatic;
 
 }
-
-
-// loop() runs over and over again, as quickly as it can execute.
 
 void loop()
 {
@@ -111,30 +100,6 @@ void loop()
   Particle.publish("light", ligthlevel_str, PRIVATE);
   delay(DELAYTIME);
 }
-
-/*void loop() 
-{
-  ligthlevel = analogRead(photosensor) + ligthlevel;
-  lightlevel_cur = ligthlevel/counter;
-  if (counter>=6000)//6000 * 0.1 sek = 10 minutes
-  {
-    ligthlevel = ligthlevel/6000;
-    if (ligthlevel < LIGTH_LOW && pwm_pos != PWM_CLOSE )
-    {
-      CloseGate();
-    }
-    if (ligthlevel > LIGTH_HIGH && pwm_pos != PWM_OPEN)
-    {
-      OpenGate();
-    }
-    String ligthlevel_str = String(ligthlevel);
-    Particle.publish("light", ligthlevel_str, PRIVATE);
-    ligthlevel = 0;
-    counter = 0;
-  }
-  counter++;
-  delay(100);
-}*/
 
 int gatecontrole(String command) {
   if (command == "open") 
@@ -196,13 +161,9 @@ void OpenGateI()
   pwm_pos = PWM_OPEN;
   digitalWrite(activate_servo, HIGH);
   analogWrite(gate_PWM, pwm_pos, PWM_FREKQUENZY);
-  
-
   mode = manual;
   digitalWrite(man_sig, HIGH);
-  RGB.color(4, 0, 0);
-  
-
+  RGB.color(0, 4, 0);
   return;
 }
 
@@ -211,12 +172,9 @@ void CloseGateI()
   pwm_pos = PWM_CLOSE;
   digitalWrite(activate_servo, HIGH);
   analogWrite(gate_PWM, pwm_pos, PWM_FREKQUENZY);
-  
-
   mode = manual;
   digitalWrite(man_sig, HIGH);
   RGB.color(4, 0, 0);
-
   return;
 }
 
@@ -225,14 +183,10 @@ void GoToAuto()
   mode = automatic;
   digitalWrite(man_sig, LOW);
   digitalWrite(activate_servo, LOW);
+  RGB.color(0, 0, 0);
 }
 
 void myHandler(const char *event, const char *data) {
   String mystring = String(data);
 
-}
-
-void DebugInterrupts()
-{
-  RGB.color(1,6,5);
 }
