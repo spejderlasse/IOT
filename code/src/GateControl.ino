@@ -83,6 +83,11 @@ void setup() {
 
 void loop()
 {
+  while(WiFi.ready()==0)
+  {
+    //go to sensorcontrol
+  }
+
   if(mode = manual)
   {
     lightlevel_cur = analogRead(photosensor);
@@ -98,7 +103,19 @@ void loop()
   }
   String ligthlevel_str = String(ligthlevel);
   Particle.publish("light", ligthlevel_str, PRIVATE);
-  delay(DELAYTIME);
+  RGB.color(0, 8, 0);
+  delay(5000);//use DELAYTIME
+  RGB.color(8, 0, 0);
+  if(mode == automatic)
+  {
+    SystemSleepConfiguration config;
+    config.mode(SystemSleepMode::ULTRA_LOW_POWER)
+      .gpio(push_auto, RISING)
+      .duration(20s);
+    System.sleep(config);
+    
+  }
+
 }
 
 int gatecontrole(String command) {
