@@ -6,61 +6,66 @@
  */
 
 int photosensor = A0;
-int gate_PWM = D3;
-int push_open = D6;
-int push_close = D5;
-int push_auto = D4;
 int activate_servo = D2;
-int man_sig = D7;
-const int PWM_OPEN = 5;
-const int PWM_CLOSE = 35;
-const int PWM_MID = 16;
-int ligthlevel;
-int lightlevel_cur;
-int pwm_pos;
+int gate_PWM = D3;
+int push_auto = D4;
+int push_close = D5;
+int push_open = D6;
+int signal = D7;
+int sw_eco = D8;
+
+const int GATE_OPEN = 5;
+const int GATE_CLOSED = 35;
+const int GATE_MID = 17;
 const int PWM_FREKQUENZY = 50;
+int gate_pos;
+
+int ligthlevel;
 const int LIGTH_LOW = 50;
 const int LIGTH_HIGH = 110;
-int sunset;
-int sunrise;
-int curr_time;
+
 String mystring;
-int DELAYTIME = 600000;
+//constants for sleep
+int MINUT = 60;
+int HOUR = 60 * MINUT;
+int MAX_SLEEP = HOUR * 20; // longest day/night is 17.5 hour
+
+//constants for delay
+int MS2SECOND = 1000;
+int MS2MINUT = MS2SECOND * 60;
+int MS2HOUR = MS2MINUT * 60;
 
 int gatecontrole(String command);
 void OpenGate();
 void CloseGate();
 void GoToAuto();
 void myHandler(const char *event, const char *data);
+void sensor_control(int sleep);
 
 typedef enum{
 manual,
-automatic,
+wifi,
+eco,
+exam,
 } mode_types;
-
 mode_types mode;
 
 // setup() runs once, when the device is first turned on.
 void setup() {
 
+
   // set gate to mid position and open
   pinMode(gate_PWM, OUTPUT);
   pinMode(activate_servo, OUTPUT);
-  pwm_pos = PWM_MID;
+  gate_pos = GATE_MID;
   OpenGate();
 
   //variables to access online
   Particle.variable("ligthlevel", &ligthlevel, INT);
-  Particle.variable("gate position", &pwm_pos, INT);
-  Particle.variable("current light", &lightlevel_cur, INT);
-  Particle.variable("sunset", &sunset, INT);
-  Particle.variable("sunrise", &sunset, INT);
-  Particle.variable("curr_time", &sunset, INT);
+  Particle.variable("gate position", &gate_pos, INT);
 
   //online option to open and close gate
   Particle.function("gate",gatecontrole);
-
-  Particle.subscribe("hook-response/suntimes", myHandler, MY_DEVICES);
 
   // setting ligthlevel between high and low
   ligthlevel = (LIGTH_HIGH + LIGTH_LOW) * 0.5;
@@ -70,52 +75,128 @@ void setup() {
   RGB.color(0, 0, 0);
 
   //attaching interrupts for manually opening or closing the gate
+  pinMode(sw_eco, INPUT_PULLDOWN);
   pinMode(push_close, INPUT_PULLDOWN);
   pinMode(push_open, INPUT_PULLDOWN);
   pinMode(push_auto, INPUT_PULLDOWN);
-  pinMode(man_sig, OUTPUT);
-  attachInterrupt(push_open, OpenGateI, RISING, 8);
+  pinMode(signal, OUTPUT);
+  digitalWrite(signal, LOW);
+  attachInterrupt(push_open, OpenGateI, RISING, 9);
   attachInterrupt(push_close, CloseGateI, RISING, 8);
-  attachInterrupt(push_auto, GoToAuto, RISING, 8);
-  mode = automatic;
+  attachInterrupt(push_auto, GoToAuto, RISING, 7);
+  
+  mode = wifi;
 
 }
 
 void loop()
 {
-  while(WiFi.ready()==0)
+
+  SystemSleepConfiguration config;
+  config.mode(SystemSleepMode::STOP)
+    .network(NETWORK_INTERFACE_WIFI_STA, SystemSleepNetworkFlag::NONE)
+    .gpio(push_open, RISING);
+    //.gpio(push_close, RISING)
+    //.gpio(push_auto, RISING);
+    //.duration(40s);
+  System.sleep(config);
+
+  while(mode==wifi)
   {
-    //go to sensorcontrol
+    digitalWrite(signal,HIGH);
+    delay(500);
+    digitalWrite(signal ,LOW);
+    delay(500);
+  }
+  delay(2000);
+  RGB.color(0,100,100);
+  delay(2000);
+  RGB.color(0,0,0); 
+
+  while(mode==manual)
+  {
+    digitalWrite(signal,HIGH);
+    delay(100);
+    digitalWrite(signal ,LOW);
+    delay(100);
   }
 
-  if(mode = manual)
+
+
+
+
+
+
+  /*
+  if(mode != eco && sw_eco)
   {
-    lightlevel_cur = analogRead(photosensor);
-    ligthlevel = lightlevel_cur * 0.5 + ligthlevel * 0.5;
-    if (ligthlevel < LIGTH_LOW && pwm_pos != PWM_CLOSE )
-    {
-      CloseGate();
-    }
-    if (ligthlevel > LIGTH_HIGH && pwm_pos != PWM_OPEN)
-    {
-      OpenGate();
-    }  
+    mode = eco;
   }
+  else if(mode == eco && !sw_eco)
+  {
+    mode = wifi;
+  }*/
+  /*
+  switch (mode)
+  {
+  case manual:
+    delay(10000);
+    digitalWrite(activate_servo, LOW);
+    break;
+  case wifi:
+    digitalWrite(signal,HIGH);
+    delay(1000);
+    digitalWrite(signal ,LOW);
+    delay(1000);
+
+    if(!WiFi.ready())
+    {
+      sensor_control(1);
+    }
+    break;
+  case eco:
+    sensor_control(1);
+    break;
+  case exam:
+    RGB.color(0, 8, 8);
+    delay(1000);
+    RGB.color(0, 0, 0);
+    sensor_control(1);
+    break;
+  default:
+    break;
+  }  */
+}
+
+void sensor_control(int sleeptime)
+{
+  int lightlevel = 0;
+  for (int i =0; i<10; i++)
+  {
+    lightlevel = lightlevel + analogRead(photosensor);
+  }
+
   String ligthlevel_str = String(ligthlevel);
   Particle.publish("light", ligthlevel_str, PRIVATE);
-  RGB.color(0, 8, 0);
-  delay(5000);//use DELAYTIME
-  RGB.color(8, 0, 0);
-  if(mode == automatic)
-  {
-    SystemSleepConfiguration config;
-    config.mode(SystemSleepMode::ULTRA_LOW_POWER)
-      .gpio(push_auto, RISING)
-      .duration(20s);
-    System.sleep(config);
-    
-  }
 
+  if (ligthlevel < LIGTH_LOW && gate_pos != GATE_CLOSED )
+  {
+    CloseGate();
+  }
+  else if (ligthlevel > LIGTH_HIGH && gate_pos != GATE_OPEN)
+  {
+    OpenGate();
+  }  
+
+  //SystemSleepConfiguration& network(network_interface_t netif, EnumFlags<SystemSleepNetworkFlag> flags = SystemSleepNetworkFlag::NONE)
+
+  SystemSleepConfiguration config;
+  config.mode(SystemSleepMode::STOP)
+    .network(NETWORK_INTERFACE_WIFI_STA, SystemSleepNetworkFlag::NONE)
+    .gpio(push_open, RISING)
+    .gpio(push_close, RISING)
+    .duration(sleeptime);
+  System.sleep(config);
 }
 
 int gatecontrole(String command) {
@@ -137,68 +218,67 @@ int gatecontrole(String command) {
 
 void OpenGate()
 {
-  while(pwm_pos>PWM_OPEN)
+  RGB.color(0, 8, 0);
+  while(gate_pos>GATE_OPEN)
   {
-    pwm_pos--;
-    analogWrite(gate_PWM, pwm_pos, PWM_FREKQUENZY);
+    gate_pos--;
+    analogWrite(gate_PWM, gate_pos, PWM_FREKQUENZY);
     delay(200);
   }
   
-  String pwm_pos_str = String(pwm_pos);
+  String pwm_pos_str = String(gate_pos);
   Particle.publish("position", pwm_pos_str, PRIVATE);
-  delay(500);
+  delay(2000);
   digitalWrite(activate_servo, LOW);
-  //RGB.color(0, 8, 0);
+  RGB.color(0, 0, 0);
 
   return;
 }
 
 void CloseGate()
 {
+  RGB.color(8, 0, 0);
   digitalWrite(activate_servo, HIGH);
-  while(pwm_pos<PWM_CLOSE)
+  while(gate_pos<GATE_CLOSED)
   {
-    pwm_pos++;
-    analogWrite(gate_PWM, pwm_pos, PWM_FREKQUENZY);
+    gate_pos++;
+    analogWrite(gate_PWM, gate_pos, PWM_FREKQUENZY);
     delay(200);
   }
 
-  String pwm_pos_str = String(pwm_pos);
+  String pwm_pos_str = String(gate_pos);
   Particle.publish("position", pwm_pos_str, PRIVATE);
-  delay(500);
+  delay(2000);
   digitalWrite(activate_servo, LOW);
-  //RGB.color(8, 0, 0);
+  RGB.color(0, 0, 0);
 
   return;
 }
 
 void OpenGateI()
 {
+  RGB.color(0, 8, 0);
   digitalWrite(activate_servo, HIGH);
-  pwm_pos = PWM_OPEN;
-  digitalWrite(activate_servo, HIGH);
-  analogWrite(gate_PWM, pwm_pos, PWM_FREKQUENZY);
+  gate_pos = GATE_OPEN;
+  analogWrite(gate_PWM, gate_pos, PWM_FREKQUENZY);
   mode = manual;
-  digitalWrite(man_sig, HIGH);
-  RGB.color(0, 4, 0);
   return;
 }
 
 void CloseGateI()
 {
-  pwm_pos = PWM_CLOSE;
+  RGB.color(8, 0, 0);
+  gate_pos = GATE_CLOSED;
   digitalWrite(activate_servo, HIGH);
-  analogWrite(gate_PWM, pwm_pos, PWM_FREKQUENZY);
+  analogWrite(gate_PWM, gate_pos, PWM_FREKQUENZY);
   mode = manual;
-  digitalWrite(man_sig, HIGH);
-  RGB.color(4, 0, 0);
   return;
 }
 
+
 void GoToAuto()
 {
-  mode = automatic;
-  digitalWrite(man_sig, LOW);
+  mode = wifi;
   digitalWrite(activate_servo, LOW);
   RGB.color(0, 0, 0);
 }
