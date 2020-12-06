@@ -21,20 +21,16 @@ const int PWM_FREKQUENZY = 50;
 int gate_pos;
 
 int lightlevel;
-const int LIGTH_LOW = 50;
-const int LIGTH_HIGH = 110;
+const int LIGTH_LOW = 10;
+const int LIGTH_HIGH = 20;
 
 String mystring;
-//constants for sleep
-int MINUT = 60;
-int HOUR = 60 * MINUT;
-int MAX_SLEEP = HOUR * 20; // longest day/night is 17.5 hour
 
 //constants for delay
 int MS2SECOND = 1000;
 int MS2MINUT = MS2SECOND * 60;
 int MS2HOUR = MS2MINUT * 60;
-int MAXWAIT = 5* MS2HOUR * 20; // longest day/night is 17.5 hour
+int MAXWAIT = 60000;//5* MS2HOUR * 20; // set to 60000 for test
 int DELAYTIME = MS2SECOND*10;
 
 int gatecontrole(String command);
@@ -140,8 +136,16 @@ void sensor_control()
   {
     lightlevel = lightlevel + analogRead(photosensor);
     delay(550);
+    if(mode==normal)
+    {
+      return;
+    }
   }
-  RGB.color(0,0,10);
+  if(mode==normal)
+  {
+    return;
+  }
+  RGB.color(10,0,0);
   lightlevel = lightlevel * 0.1;
   String ligthlevel_str = String(lightlevel);
   Particle.publish("light", ligthlevel_str, PRIVATE);
