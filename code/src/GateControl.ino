@@ -33,7 +33,7 @@ const int MEAN_N = 5*300;//
 int MS2SECOND = 1000;
 int MS2MINUT = MS2SECOND * 60;
 int MS2HOUR = MS2MINUT * 60;
-int MAXWAIT = 5000;//5* MS2HOUR * 20; // set to 60000 for test
+int MAXWAIT = 5* MS2HOUR * 20; // set to 60000 for test
 int DELAYTIME = MS2SECOND*10;
 
 //prototypes of functions
