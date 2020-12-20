@@ -20,3 +20,6 @@ There is two folders. One for the code, and one for appendixes.
 The documentation will be in danish.
 
 ![alt text](IMG_20200914_155222.jpg)
+
+## Video Demonstration
+https://youtu.be/oadeA-ce4zg
